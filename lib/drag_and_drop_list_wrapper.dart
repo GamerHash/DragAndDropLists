@@ -36,7 +36,7 @@ class _DragAndDropListWrapper extends State<DragAndDropListWrapper>
 
     Widget draggable;
     if (widget.dragAndDropList.canDrag) {
-      if (widget.parameters.dragHandle != null) {
+      if (widget.parameters.dragHandle != null && widget.parameters.listShowDragIcon) {
         Widget dragHandle = MouseRegion(
           cursor: SystemMouseCursors.grab,
           child: widget.parameters.dragHandle,

@@ -58,10 +58,8 @@ typedef void ListOnAccept(
   DragAndDropListInterface incoming,
   DragAndDropListInterface target,
 );
-typedef bool ListTargetOnWillAccept(
-    DragAndDropListInterface incoming, DragAndDropListTarget target);
-typedef void ListTargetOnAccept(
-    DragAndDropListInterface incoming, DragAndDropListTarget target);
+typedef bool ListTargetOnWillAccept(DragAndDropListInterface incoming, DragAndDropListTarget target);
+typedef void ListTargetOnAccept(DragAndDropListInterface incoming, DragAndDropListTarget target);
 typedef void OnItemDraggingChanged(
   DragAndDropItem item,
   bool dragging,
@@ -74,8 +72,7 @@ typedef void ItemOnAccept(
   DragAndDropItem incoming,
   DragAndDropItem target,
 );
-typedef bool ItemTargetOnWillAccept(
-    DragAndDropItem incoming, DragAndDropItemTarget target);
+typedef bool ItemTargetOnWillAccept(DragAndDropItem incoming, DragAndDropItemTarget target);
 typedef void ItemTargetOnAccept(
   DragAndDropItem incoming,
   DragAndDropListInterface parentList,
@@ -283,6 +280,9 @@ class DragAndDropLists extends StatefulWidget {
   /// disable when setting customDragTargets
   final bool constrainDraggingAxis;
 
+  /// Show a drag icon for lists
+  final bool listShowDragIcon;
+
   DragAndDropLists({
     this.children,
     this.onItemReorder,
@@ -334,25 +334,19 @@ class DragAndDropLists extends StatefulWidget {
     this.listDragHandleVerticalAlignment = DragHandleVerticalAlignment.top,
     this.itemDragHandleVerticalAlignment = DragHandleVerticalAlignment.center,
     this.constrainDraggingAxis = true,
+    this.listShowDragIcon = true,
     Key key,
   }) : super(key: key) {
-    if (listGhost == null &&
-        children
-            .where((element) => element is DragAndDropListExpansionInterface)
-            .isNotEmpty)
-      throw Exception(
-          'If using DragAndDropListExpansion, you must provide a non-null listGhost');
+    if (listGhost == null && children.where((element) => element is DragAndDropListExpansionInterface).isNotEmpty)
+      throw Exception('If using DragAndDropListExpansion, you must provide a non-null listGhost');
     if (sliverList && scrollController == null) {
-      throw Exception(
-          'A scroll controller must be provided when using sliver lists');
+      throw Exception('A scroll controller must be provided when using sliver lists');
     }
     if (axis == Axis.horizontal && listWidth == double.infinity) {
-      throw Exception(
-          'A finite width must be provided when setting the axis to horizontal');
+      throw Exception('A finite width must be provided when setting the axis to horizontal');
     }
     if (axis == Axis.horizontal && sliverList) {
-      throw Exception(
-          'Combining a sliver list with a horizontal list is currently unsupported');
+      throw Exception('Combining a sliver list with a horizontal list is currently unsupported');
     }
   }
 
@@ -419,6 +413,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
       listDragHandleVerticalAlignment: widget.listDragHandleVerticalAlignment,
       constrainDraggingAxis: widget.constrainDraggingAxis,
       disableScrolling: widget.disableScrolling,
+      listShowDragIcon: widget.listShowDragIcon,
     );
 
     DragAndDropListTarget dragAndDropListTarget = DragAndDropListTarget(
@@ -435,9 +430,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
         int childrenCount;
         bool includeSeparators = widget.listDivider != null;
         if (includeSeparators)
-          childrenCount = ((widget.children?.length ?? 0) * 2) -
-              (widget.listDividerOnLastChild ? 0 : 1) +
-              1;
+          childrenCount = ((widget.children?.length ?? 0) * 2) - (widget.listDividerOnLastChild ? 0 : 1) + 1;
         else
           childrenCount = (widget.children?.length ?? 0) + 1;
         listView = SliverList(
@@ -449,8 +442,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
                 return widget.listDivider;
               } else {
                 return DragAndDropListWrapper(
-                  dragAndDropList: widget.children[
-                      (includeSeparators ? index / 2 : index).toInt()],
+                  dragAndDropList: widget.children[(includeSeparators ? index / 2 : index).toInt()],
                   parameters: parameters,
                 );
               }
@@ -463,9 +455,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
           listView = ListView.separated(
             scrollDirection: widget.axis,
             controller: _scrollController,
-            physics: widget.disableScrolling
-                ? const NeverScrollableScrollPhysics()
-                : null,
+            physics: widget.disableScrolling ? const NeverScrollableScrollPhysics() : null,
             separatorBuilder: (_, index) => widget.listDividerOnLastChild
                 ? widget.listDivider
                 : index + 1 >= (widget.children?.length ?? 0)
@@ -486,9 +476,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
         } else {
           listView = ListView.builder(
             scrollDirection: widget.axis,
-            physics: widget.disableScrolling
-                ? const NeverScrollableScrollPhysics()
-                : null,
+            physics: widget.disableScrolling ? const NeverScrollableScrollPhysics() : null,
             controller: _scrollController,
             itemCount: (widget.children?.length ?? 0) + 1,
             itemBuilder: (context, index) {
@@ -505,9 +493,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
         }
       }
 
-      if (widget.children
-          .where((e) => e is DragAndDropListExpansionInterface)
-          .isNotEmpty) {
+      if (widget.children.where((e) => e is DragAndDropListExpansionInterface).isNotEmpty) {
         listView = PageStorage(
           child: listView,
           bucket: _pageStorageBucket,
@@ -539,13 +525,11 @@ class DragAndDropListsState extends State<DragAndDropLists> {
 
     for (int i = 0; i < widget.children.length; i++) {
       if (reorderedItemIndex == -1) {
-        reorderedItemIndex =
-            widget.children[i].children.indexWhere((e) => reordered == e);
+        reorderedItemIndex = widget.children[i].children.indexWhere((e) => reordered == e);
         if (reorderedItemIndex != -1) reorderedListIndex = i;
       }
       if (receiverItemIndex == -1) {
-        receiverItemIndex =
-            widget.children[i].children.indexWhere((e) => receiver == e);
+        receiverItemIndex = widget.children[i].children.indexWhere((e) => receiver == e);
         if (receiverItemIndex != -1) receiverListIndex = i;
       }
       if (reorderedItemIndex != -1 && receiverItemIndex != -1) {
@@ -555,23 +539,18 @@ class DragAndDropListsState extends State<DragAndDropLists> {
 
     if (reorderedItemIndex == -1) {
       // this is a new item
-      if (widget.onItemAdd != null)
-        widget.onItemAdd(reordered, receiverListIndex, receiverItemIndex);
+      if (widget.onItemAdd != null) widget.onItemAdd(reordered, receiverListIndex, receiverItemIndex);
     } else {
-      if (reorderedListIndex == receiverListIndex &&
-          receiverItemIndex > reorderedItemIndex) {
+      if (reorderedListIndex == receiverListIndex && receiverItemIndex > reorderedItemIndex) {
         // same list, so if the new position is after the old position, the removal of the old item must be taken into account
         receiverItemIndex--;
       }
 
-      if (widget.onItemReorder != null)
-        widget.onItemReorder(reorderedItemIndex, reorderedListIndex,
-            receiverItemIndex, receiverListIndex);
+      if (widget.onItemReorder != null) widget.onItemReorder(reorderedItemIndex, reorderedListIndex, receiverItemIndex, receiverListIndex);
     }
   }
 
-  _internalOnListReorder(
-      DragAndDropListInterface reordered, DragAndDropListInterface receiver) {
+  _internalOnListReorder(DragAndDropListInterface reordered, DragAndDropListInterface receiver) {
     int reorderedListIndex = widget.children.indexWhere((e) => reordered == e);
     int receiverListIndex = widget.children.indexWhere((e) => receiver == e);
 
@@ -587,13 +566,11 @@ class DragAndDropListsState extends State<DragAndDropLists> {
         // same list, so if the new position is after the old position, the removal of the old item must be taken into account
         newListIndex--;
       }
-      if (widget.onListReorder != null)
-        widget.onListReorder(reorderedListIndex, newListIndex);
+      if (widget.onListReorder != null) widget.onListReorder(reorderedListIndex, newListIndex);
     }
   }
 
-  _internalOnItemDropOnLastTarget(DragAndDropItem newOrReordered,
-      DragAndDropListInterface parentList, DragAndDropItemTarget receiver) {
+  _internalOnItemDropOnLastTarget(DragAndDropItem newOrReordered, DragAndDropListInterface parentList, DragAndDropItemTarget receiver) {
     if (widget.itemTargetOnAccept != null) {
       widget.itemTargetOnAccept(newOrReordered, parentList, receiver);
     }
@@ -606,9 +583,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
     if (widget.children != null && widget.children.isNotEmpty) {
       for (int i = 0; i < widget.children.length; i++) {
         if (reorderedItemIndex == -1) {
-          reorderedItemIndex = widget.children[i].children
-                  ?.indexWhere((e) => newOrReordered == e) ??
-              -1;
+          reorderedItemIndex = widget.children[i].children?.indexWhere((e) => newOrReordered == e) ?? -1;
           if (reorderedItemIndex != -1) reorderedListIndex = i;
         }
 
@@ -624,35 +599,26 @@ class DragAndDropListsState extends State<DragAndDropLists> {
     }
 
     if (reorderedItemIndex == -1) {
-      if (widget.onItemAdd != null)
-        widget.onItemAdd(newOrReordered, receiverListIndex, reorderedItemIndex);
+      if (widget.onItemAdd != null) widget.onItemAdd(newOrReordered, receiverListIndex, reorderedItemIndex);
     } else {
-      if (reorderedListIndex == receiverListIndex &&
-          receiverItemIndex > reorderedItemIndex) {
+      if (reorderedListIndex == receiverListIndex && receiverItemIndex > reorderedItemIndex) {
         // same list, so if the new position is after the old position, the removal of the old item must be taken into account
         receiverItemIndex--;
       }
-      if (widget.onItemReorder != null)
-        widget.onItemReorder(reorderedItemIndex, reorderedListIndex,
-            receiverItemIndex, receiverListIndex);
+      if (widget.onItemReorder != null) widget.onItemReorder(reorderedItemIndex, reorderedListIndex, receiverItemIndex, receiverListIndex);
     }
   }
 
-  _internalOnListDropOnLastTarget(
-      DragAndDropListInterface newOrReordered, DragAndDropListTarget receiver) {
+  _internalOnListDropOnLastTarget(DragAndDropListInterface newOrReordered, DragAndDropListTarget receiver) {
     // determine if newOrReordered is new or existing
-    int reorderedListIndex =
-        widget.children.indexWhere((e) => newOrReordered == e);
+    int reorderedListIndex = widget.children.indexWhere((e) => newOrReordered == e);
 
-    if (widget.listOnAccept != null)
-      widget.listTargetOnAccept(newOrReordered, receiver);
+    if (widget.listOnAccept != null) widget.listTargetOnAccept(newOrReordered, receiver);
 
     if (reorderedListIndex >= 0) {
-      if (widget.onListReorder != null)
-        widget.onListReorder(reorderedListIndex, widget.children.length - 1);
+      if (widget.onListReorder != null) widget.onListReorder(reorderedListIndex, widget.children.length - 1);
     } else {
-      if (widget.onListAdd != null)
-        widget.onListAdd(newOrReordered, reorderedListIndex);
+      if (widget.onListAdd != null) widget.onListAdd(newOrReordered, reorderedListIndex);
     }
   }
 
@@ -676,11 +642,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
   }
 
   _scrollList() async {
-    if (!widget.disableScrolling &&
-        !_scrolling &&
-        _pointerDown &&
-        _pointerYPosition != null &&
-        _pointerXPosition != null) {
+    if (!widget.disableScrolling && !_scrolling && _pointerDown && _pointerYPosition != null && _pointerXPosition != null) {
       int duration = 30; // in ms
       int scrollAreaSize = 20;
       double step = 1.5;
@@ -700,62 +662,36 @@ class DragAndDropListsState extends State<DragAndDropLists> {
         double top = topLeftOffset.dy;
         double bottom = bottomRightOffset.dy;
 
-        if (_pointerYPosition < (top + scrollAreaSize) &&
-            _scrollController.position.pixels >
-                _scrollController.position.minScrollExtent) {
-          final overDrag =
-              max((top + scrollAreaSize) - _pointerYPosition, overDragMax);
-          newOffset = max(
-              _scrollController.position.minScrollExtent,
-              _scrollController.position.pixels -
-                  step * overDrag / overDragCoefficient);
-        } else if (_pointerYPosition > (bottom - scrollAreaSize) &&
-            _scrollController.position.pixels <
-                _scrollController.position.maxScrollExtent) {
-          final overDrag = max<double>(
-              _pointerYPosition - (bottom - scrollAreaSize), overDragMax);
-          newOffset = min(
-              _scrollController.position.maxScrollExtent,
-              _scrollController.position.pixels +
-                  step * overDrag / overDragCoefficient);
+        if (_pointerYPosition < (top + scrollAreaSize) && _scrollController.position.pixels > _scrollController.position.minScrollExtent) {
+          final overDrag = max((top + scrollAreaSize) - _pointerYPosition, overDragMax);
+          newOffset = max(_scrollController.position.minScrollExtent, _scrollController.position.pixels - step * overDrag / overDragCoefficient);
+        } else if (_pointerYPosition > (bottom - scrollAreaSize) && _scrollController.position.pixels < _scrollController.position.maxScrollExtent) {
+          final overDrag = max<double>(_pointerYPosition - (bottom - scrollAreaSize), overDragMax);
+          newOffset = min(_scrollController.position.maxScrollExtent, _scrollController.position.pixels + step * overDrag / overDragCoefficient);
         }
       } else {
         double left = topLeftOffset.dx;
         double right = bottomRightOffset.dx;
 
-        if (_pointerXPosition < (left + scrollAreaSize) &&
-            _scrollController.position.pixels >
-                _scrollController.position.minScrollExtent) {
-          final overDrag =
-              max((left + scrollAreaSize) - _pointerXPosition, overDragMax);
-          newOffset = max(
-              _scrollController.position.minScrollExtent,
-              _scrollController.position.pixels -
-                  step * overDrag / overDragCoefficient);
-        } else if (_pointerXPosition > (right - scrollAreaSize) &&
-            _scrollController.position.pixels <
-                _scrollController.position.maxScrollExtent) {
-          final overDrag = max<double>(
-              _pointerYPosition - (right - scrollAreaSize), overDragMax);
-          newOffset = min(
-              _scrollController.position.maxScrollExtent,
-              _scrollController.position.pixels +
-                  step * overDrag / overDragCoefficient);
+        if (_pointerXPosition < (left + scrollAreaSize) && _scrollController.position.pixels > _scrollController.position.minScrollExtent) {
+          final overDrag = max((left + scrollAreaSize) - _pointerXPosition, overDragMax);
+          newOffset = max(_scrollController.position.minScrollExtent, _scrollController.position.pixels - step * overDrag / overDragCoefficient);
+        } else if (_pointerXPosition > (right - scrollAreaSize) && _scrollController.position.pixels < _scrollController.position.maxScrollExtent) {
+          final overDrag = max<double>(_pointerYPosition - (right - scrollAreaSize), overDragMax);
+          newOffset = min(_scrollController.position.maxScrollExtent, _scrollController.position.pixels + step * overDrag / overDragCoefficient);
         }
       }
 
       if (newOffset != null) {
         _scrolling = true;
-        await _scrollController.animateTo(newOffset,
-            duration: Duration(milliseconds: duration), curve: Curves.linear);
+        await _scrollController.animateTo(newOffset, duration: Duration(milliseconds: duration), curve: Curves.linear);
         _scrolling = false;
         if (_pointerDown) _scrollList();
       }
     }
   }
 
-  static Offset localToGlobal(RenderObject object, Offset point,
-      {RenderObject ancestor}) {
+  static Offset localToGlobal(RenderObject object, Offset point, {RenderObject ancestor}) {
     return MatrixUtils.transformPoint(object.getTransformTo(ancestor), point);
   }
 }
