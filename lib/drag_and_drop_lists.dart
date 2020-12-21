@@ -283,6 +283,9 @@ class DragAndDropLists extends StatefulWidget {
   /// Show a drag icon for lists
   final bool listShowDragIcon;
 
+  /// Used to block list swap
+  final bool listSwapEnabled;
+
   DragAndDropLists({
     this.children,
     this.onItemReorder,
@@ -335,6 +338,7 @@ class DragAndDropLists extends StatefulWidget {
     this.itemDragHandleVerticalAlignment = DragHandleVerticalAlignment.center,
     this.constrainDraggingAxis = true,
     this.listShowDragIcon = true,
+    this.listSwapEnabled = false,
     Key key,
   }) : super(key: key) {
     if (listGhost == null && children.where((element) => element is DragAndDropListExpansionInterface).isNotEmpty)
@@ -414,6 +418,7 @@ class DragAndDropListsState extends State<DragAndDropLists> {
       constrainDraggingAxis: widget.constrainDraggingAxis,
       disableScrolling: widget.disableScrolling,
       listShowDragIcon: widget.listShowDragIcon,
+      listSwapEnabled: widget.listSwapEnabled,
     );
 
     DragAndDropListTarget dragAndDropListTarget = DragAndDropListTarget(

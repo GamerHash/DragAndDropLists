@@ -67,6 +67,7 @@ class DragAndDropBuilderParameters {
   final bool constrainDraggingAxis;
   final bool disableScrolling;
   final bool listShowDragIcon;
+  final bool listSwapEnabled;
 
   DragAndDropBuilderParameters({
     this.onPointerMove,
@@ -108,5 +109,6 @@ class DragAndDropBuilderParameters {
     this.constrainDraggingAxis = true,
     this.disableScrolling = false,
     this.listShowDragIcon = true,
+    this.listSwapEnabled = true,
   });
 }
