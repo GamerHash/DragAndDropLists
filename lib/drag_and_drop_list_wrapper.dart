@@ -39,7 +39,7 @@ class _DragAndDropListWrapper extends State<DragAndDropListWrapper>
       if (widget.parameters.dragHandle != null && (!widget.parameters.listSwapEnabled && widget.parameters.dragOnLongPress)) {
         Widget dragHandle = MouseRegion(
           cursor: SystemMouseCursors.grab,
-          child: widget.parameters.listShowDragIcon ? widget.parameters.dragHandle : null,
+          child: widget.parameters.listShowDragIcon ? widget.parameters.dragHandle : SizedBox(),
         );
 
         Widget feedback = Container(
